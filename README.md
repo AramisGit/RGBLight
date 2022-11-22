@@ -15,5 +15,3 @@
 ### Both 
 - Hold *Space* for finer Hue precision.
 - Press *Escape* to quit.
-- Press *CTRL + C* to copy colour code to keyboard.
-- Press *CTRL + S* to set default colour on open.
