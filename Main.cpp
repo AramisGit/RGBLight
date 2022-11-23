@@ -14,7 +14,7 @@
 #include "keycodes.h"
 
 double h, s, v;
-const char *pConfigPath = ".\\start_colour.ini";
+const char *pConfigPath = "start_colour.ini";
 
 // trim from end of string (right)
 std::string RightTrim(std::string const &str, const char *t)
@@ -88,6 +88,8 @@ void ReadColourFromFile(const char *pPath)
       v = x;
       
   } while (ifs.good());
+
+  ifs.close();
 }
 
 /// <summary>
@@ -106,6 +108,8 @@ void WriteColourToFile(const char *pPath)
   ofs << "H = " << h << "\n";
   ofs << "S = " << s << "\n";
   ofs << "V = " << v << "\n";
+
+  ofs.close();
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
