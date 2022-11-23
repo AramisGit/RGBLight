@@ -1,5 +1,5 @@
 # RGBLight
-A minimal windows app that changes hue with the scrollwheel. Useful for RGB testing, and lighting in general.
+A minimal windows app that changes hue with the scrollwheel. Useful for dead pixel testing, and as a genral RGBLight.
 
 ## INSTRUCTIONS
 ### Mouse:
