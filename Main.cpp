@@ -3,6 +3,9 @@
 #endif
 
 #include <string>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 #include <windows.h>
 #include <WinUser.h>
@@ -11,6 +14,99 @@
 #include "keycodes.h"
 
 double h, s, v;
+const char *pConfigPath = ".\\start_colour.ini";
+
+// trim from end of string (right)
+std::string RightTrim(std::string const &str, const char *t)
+{
+  std::string newStr(str);
+  newStr.erase(newStr.find_last_not_of(t) + 1);
+  return newStr;
+}
+
+// trim from beginning of string (left)
+std::string LeftTrim(std::string const &str, const char *t)
+{
+  std::string newStr(str);
+  newStr.erase(0, newStr.find_first_not_of(t));
+  return newStr;
+}
+
+// trim from both ends of string (right then left)
+std::string Trim(std::string const &str)
+{
+  static const char *ws = " \t\n\r\f\v";
+  return LeftTrim(RightTrim(str, ws), ws);
+}
+
+/// <summary>
+/// Reads the colour specified in the colour config file.
+/// </summary>
+/// <param name="pPath"></param>
+/// <returns></returns>
+void ReadColourFromFile(const char *pPath)
+{
+  std::ifstream ifs(pPath);
+
+  const size_t bufSize = 1024;
+  char buffer[bufSize] = {};
+
+  if (!ifs.good())
+    return;
+
+  do
+  {
+    ifs.getline(buffer, bufSize);
+
+    std::string line(buffer);
+    line = Trim(line);
+
+    if (line.size() == 0)
+      continue;
+
+    // Comments
+    if (line.front() == ';')
+      continue;
+
+    size_t pos = line.find_first_of('=');
+
+    if (pos == line.size())
+      continue;
+    std::string key = Trim(line.substr(0, pos));
+    std::string value = Trim(line.substr(pos + 1));
+
+    std::stringstream code(value);
+
+    double x = 0;
+    code >> x;
+
+    if (key == "H")
+      h = x;
+    if (key == "S")
+      s = x;
+    if (key == "V")
+      v = x;
+      
+  } while (ifs.good());
+}
+
+/// <summary>
+/// Writes the last colour to the specified colour confid file.
+/// </summary>
+/// <param name="pPath"></param>
+/// <returns></returns>
+void WriteColourToFile(const char *pPath)
+{
+  std::ofstream ofs(pPath);
+
+  if (!ofs.good())
+    return;
+
+  ofs << "; saves the colour from last successful app closing.\n";
+  ofs << "H = " << h << "\n";
+  ofs << "S = " << s << "\n";
+  ofs << "V = " << v << "\n";
+}
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 WINDOWPLACEMENT g_wpPrev = { sizeof(g_wpPrev) };
@@ -35,6 +131,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     h = 0; // Initial hue value of 0 degrees. (Red)
     s = 100; // Initial saturation value of 100. (Full Saturation)
     v = 100; // Initial vibrance of 100. (Full Vibrance)
+
+    ReadColourFromFile(pConfigPath);
 
     HWND hWnd = CreateWindowEx(
         WS_EX_COMPOSITED,        // Optional window styles
@@ -224,12 +322,6 @@ void CopyCodeToClipBoard(colour32 colour)
     }
 }
 
-///TODO
-void SetColourOnOpen(colour32 colour)
-{
-
-}
-
 /// <summary>
 /// The callback function called in the message loop.
 /// </summary>
@@ -239,7 +331,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_DESTROY:
     {
-        SetColourOnOpen(colour32(h, s, v));
+        WriteColourToFile(pConfigPath);
         PostQuitMessage(0);
         return 0;
     }
@@ -258,8 +350,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (wParam == F_KEY)
             ToggleFullscreen(hwnd);
 
-        if (wParam == C_KEY)
-            CopyCodeToClipBoard(colour32(h, s, v));
+        //if (wParam == C_KEY)
+        //    CopyCodeToClipBoard(colour32(h, s, v));
             
         UpdateColourHSVKeys();
         CallRepaintOnRect(hwnd);
