@@ -6,8 +6,8 @@
 
 #include <windows.h>
 #include <WinUser.h>
-#include "colour32.h"
 
+#include "colour32.h"
 #include "keycodes.h"
 
 double h, s, v;
@@ -215,6 +215,7 @@ std::wstring RGBtoComp(int r, int g, int b)
     return hexcol;
 }
 
+///TODO
 void CopyCodeToClipBoard(colour32 colour) 
 {
     if (GetKeyState(VK_CONTROL) & 0x8000)
@@ -223,6 +224,7 @@ void CopyCodeToClipBoard(colour32 colour)
     }
 }
 
+///TODO
 void SetColourOnOpen(colour32 colour)
 {
 
