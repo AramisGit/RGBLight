@@ -3,7 +3,6 @@
 #endif
 
 #include <string>
-#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -105,7 +104,7 @@ void WriteColourToFile(const char *pPath)
     return;
 
   ofs << "; saves the colour from last successful app closing.\n";
-  ofs << "H = " << h << "\n";
+  ofs << "H = " << (uint32)h % 360 << "\n";
   ofs << "S = " << s << "\n";
   ofs << "V = " << v << "\n";
 
@@ -300,10 +299,10 @@ void CallCloseOnRect(HWND hwnd)
 /// <summary>
 /// Returns a wideChar string in the form of a hexcode: "#RRGGBB".
 /// </summary>
-std::wstring RGBtoHex(int r, int g, int b)
+std::wstring wRGBtoHex(int r, int g, int b)
 {
     wchar_t hexcol[16];
-    std::swprintf(hexcol, sizeof hexcol / 2, L"#%02x%02x%02x", r, g, b);
+    std::swprintf(hexcol, sizeof hexcol / 2, L"#%02X%02X%02X", r, g, b);
     return hexcol;
 }
 
@@ -317,12 +316,34 @@ std::wstring RGBtoComp(int r, int g, int b)
     return hexcol;
 }
 
-///TODO
-void CopyCodeToClipBoard(colour32 colour) 
+/// <summary>
+/// Copies the current colour displayed to the clipboard as a HexCode string.
+/// </summary>
+/// <param name="hwnd"></param>
+/// <param name="colour"></param>
+void CopyCodeToClipBoard(HWND hwnd, colour32 colour) 
 {
     if (GetKeyState(VK_CONTROL) & 0x8000)
     {
-        
+      HANDLE handl = GlobalAlloc(GMEM_MOVEABLE, 8 * sizeof(WCHAR));
+
+      if (!handl)
+        return;
+
+      memcpy((wchar_t *)GlobalLock(handl), wRGBtoHex(colour.r(), colour.g(), colour.b()).c_str(), 8 * sizeof(WCHAR));
+
+      GlobalUnlock(handl);
+
+      if (OpenClipboard(NULL))
+      {
+        EmptyClipboard();
+        if(SetClipboardData(CF_UNICODETEXT, handl))
+          handl = NULL;
+        CloseClipboard();
+      }
+
+      if (handl)
+        GlobalFree(handl);
     }
 }
 
@@ -343,7 +364,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         colour32 colour = colour32(h, s, v);
         ColourRect(hwnd, colour);
-        SetWindowText(hwnd, RGBtoHex(colour.r(), colour.g(), colour.b()).c_str());
+        SetWindowText(hwnd, wRGBtoHex(colour.r(), colour.g(), colour.b()).c_str());
         break;
     }
     case WM_KEYDOWN:
@@ -354,8 +375,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (wParam == F_KEY)
             ToggleFullscreen(hwnd);
 
-        //if (wParam == C_KEY)
-        //    CopyCodeToClipBoard(colour32(h, s, v));
+        if (wParam == C_KEY)
+            CopyCodeToClipBoard(hwnd, colour32(h, s, v));
             
         UpdateColourHSVKeys();
         CallRepaintOnRect(hwnd);
