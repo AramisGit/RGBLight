@@ -104,7 +104,7 @@ void WriteColourToFile(const char *pPath)
     return;
 
   ofs << "; saves the colour from last successful app closing.\n";
-  ofs << "H = " << (uint32)h % 360 << "\n";
+  ofs << "H = " << (int)h % 360 << "\n";
   ofs << "S = " << s << "\n";
   ofs << "V = " << v << "\n";
 

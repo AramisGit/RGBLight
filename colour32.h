@@ -61,7 +61,7 @@ uint32 HSVtoARGB(double H, double S, double V, channel A = FULL)
     return ((A << 24) | (R << 16) | (G << 8) | (B));
 }
 
-void ARGBtoHSV(double *outH, double *outV, double *outS)
+void ARGBtoHSV(uint32 argb, double *outH, double *outV, double *outS)
 {
 
 }
