@@ -1,6 +1,8 @@
 # RGBLight
 A minimal windows app that changes hue with the scrollwheel. Useful for dead pixel testing, and as a general RGB light.
 
+![alt text](screencap.png)
+
 ## CONTROLS
 - Scroll *MouseWheel*, or press *LeftArrow* and *RightArrow* keys to change **Hue**.
 - Scroll *MouseWheel* with *LeftMouseButton* clicked, or press *UpArrow* and *DownArrow* keys to change **Vibrance**.
