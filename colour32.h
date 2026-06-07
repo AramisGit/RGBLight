@@ -63,7 +63,7 @@ uint32 HSVtoARGB(double H, double S, double V, channel A = FULL)
 
 void ARGBtoHSV(uint32 argb, double *outH, double *outV, double *outS)
 {
-
+  //not implemented
 }
 
 /// <summary>
@@ -140,7 +140,7 @@ public:
     }
 
     /// <summary>
-    /// Returns the 8-bit greeb component of the colour.  (0-255)
+    /// Returns the 8-bit green component of the colour.  (0-255)
     /// </summary>
     const channel g()
     {

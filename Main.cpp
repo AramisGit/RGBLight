@@ -92,7 +92,7 @@ void ReadColourFromFile(const char *pPath)
 }
 
 /// <summary>
-/// Writes the last colour to the specified colour confid file.
+/// Writes the last colour to the specified colour config file.
 /// </summary>
 /// <param name="pPath"></param>
 /// <returns></returns>
